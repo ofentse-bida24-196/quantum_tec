@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>💻 Laptop Shop</h1>
+      <p>Refurbished laptops for every need and budget. All tested. All warranted.</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Shop</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky filter bar -->
+  <div class="filter-section">
+    <div class="container">
+      <div class="filter-inner">
+        <span class="filter-label">Filter:</span>
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-filter="all">All Brands</button>
+          <button class="chip" data-filter="dell">Dell</button>
+          <button class="chip" data-filter="hp">HP</button>
+          <button class="chip" data-filter="lenovo">Lenovo</button>
+          <button class="chip" data-filter="acer">Acer</button>
+          <button class="chip" data-filter="other">Other</button>
+        </div>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="searchBox"
+            placeholder="Search laptops..."
+            oninput="applyFilters()"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products section -->
+  <section class="section section-gray" style="padding-top:40px;">
+    <div class="container">
+
+      <!-- Results count -->
+      <p id="resultsCount" class="text-muted text-small" style="margin-bottom:20px;"></p>
+
+      <!-- Product grid -->
+      <div class="products-grid" id="shopGrid"></div>
+
+      <!-- No results message -->
+      <div id="noResults" class="empty-state" style="display:none;">
+        <span class="empty-icon">🔍</span>
+        <h3>No laptops found</h3>
+        <p>Try a different filter or clear the search.</p>
+        <button class="btn btn-outline" onclick="resetFilters()">Clear Filters</button>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("products");
+  buildFooter();
+
+  let activeFilter = "all";
+
+  // Filter + search logic
+  function applyFilters() {
+    const search = document.getElementById("searchBox").value.toLowerCase().trim();
+    const grid   = document.getElementById("shopGrid");
+    const noRes  = document.getElementById("noResults");
+    const count  = document.getElementById("resultsCount");
+
+    // Filter products
+    let filtered = PRODUCTS.filter(p => {
+      const matchFilter = (activeFilter === "all") || (p.category === activeFilter);
+      const matchSearch = !search || [p.name, p.brand, ...p.specs].join(" ").toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    // Render
+    if (filtered.length === 0) {
+      grid.innerHTML = "";
+      noRes.style.display = "block";
+      count.textContent = "";
+    } else {
+      noRes.style.display = "none";
+      grid.innerHTML = filtered.map(renderProductCard).join("");
+      count.textContent = `Showing ${filtered.length} laptop${filtered.length !== 1 ? "s" : ""}`;
+    }
+  }
+
+  // Filter chip click
+  document.getElementById("filterChips").addEventListener("click", function(e) {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+
+    // Update active chip
+    this.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+
+    activeFilter = chip.dataset.filter;
+    applyFilters();
+  });
+
+  // Reset all filters
+  function resetFilters() {
+    activeFilter = "all";
+    document.getElementById("searchBox").value = "";
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.filter === "all"));
+    applyFilters();
+  }
+
+  // Initial render
+  applyFilters();
+</script>
+
+</body>
+</html>

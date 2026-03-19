@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+  <section class="section">
+    <div class="container">
+      <div class="confirm-page-wrap">
+
+        <!-- Success icon -->
+        <div class="confirm-icon">🎉</div>
+
+        <h1>Order <span class="text-orange">Confirmed!</span></h1>
+        <p class="text-muted" style="max-width:480px; margin:12px auto;">
+          Thank you for your purchase! Your order has been received and is being prepared.
+          You'll receive a call or message to arrange delivery.
+        </p>
+
+        <!-- Order ID pill -->
+        <div class="confirm-order-id" id="confirmOrderId">
+          Loading order details...
+        </div>
+
+        <!-- Order details card -->
+        <div class="confirm-details" id="confirmDetails">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- What's next info box -->
+        <div style="background:var(--orange-pale); border:1px solid rgba(255,107,0,0.25); border-radius:var(--radius); padding:18px 22px; max-width:540px; margin:0 auto 28px; text-align:left;">
+          <h4 style="margin-bottom:8px;">📦 What Happens Next?</h4>
+          <p style="font-size:0.88rem; color:var(--gray-dark); line-height:1.7;">
+            Our team will confirm your order within a few hours (during business hours).
+            Delivery in Gaborone typically takes <strong>1 business day</strong>,
+            and 2–3 days for other cities in Botswana.
+          </p>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+          <a href="order_tracking.html" class="btn btn-primary">📍 Track My Order</a>
+          <a href="products.html" class="btn btn-outline">Continue Shopping</a>
+          <a href="index.html" class="btn btn-dark">← Home</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("");
+  buildFooter();
+
+  // Load the last placed order
+  const lastOrderId = lsGet(STORAGE.LAST_ORDER);
+  const orders      = getOrders();
+  const order       = orders.find(o => o.id === lastOrderId);
+
+  if (order) {
+    // Show order ID
+    document.getElementById("confirmOrderId").innerHTML =
+      `Order ID: <span>${order.id}</span>`;
+
+    // Map payment method to readable label
+    const payLabels = {
+      orange_money:    "🟠 Orange Money",
+      myzaka:          "📱 MyZaka",
+      bank_transfer:   "🏦 Bank Transfer",
+      cash_on_delivery:"💵 Cash on Delivery"
+    };
+
+    // Build items list
+    const itemsList = order.items.map(item => {
+      const p = PRODUCTS.find(pr => pr.id === item.id);
+      return p ? `${p.emoji} ${p.name} ×${item.qty}` : "";
+    }).filter(Boolean).join("<br>");
+
+    // Render details rows
+    document.getElementById("confirmDetails").innerHTML = `
+      <div class="detail-row">
+        <span class="label">Customer</span>
+        <span class="value">${order.delivery.name}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email</span>
+        <span class="value">${order.delivery.email}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Phone</span>
+        <span class="value">${order.delivery.phone}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Delivery Address</span>
+        <span class="value">${order.delivery.address}, ${order.delivery.city}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Items Ordered</span>
+        <span class="value" style="text-align:right;">${itemsList}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Method</span>
+        <span class="value">${payLabels[order.delivery.payment] || order.delivery.payment}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Order Date</span>
+        <span class="value">${order.date}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Status</span>
+        <span class="value" style="color:var(--success);">✅ ${order.status}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Total</span>
+        <span class="value" style="color:var(--orange); font-size:1.15rem;">${formatBWP(order.total)}</span>
+      </div>
+    `;
+  } else {
+    // No order found — possibly accessed directly
+    document.getElementById("confirmOrderId").textContent = "No recent order found.";
+    document.getElementById("confirmDetails").innerHTML = `
+      <div style="text-align:center; padding:20px; color:var(--gray-mid);">
+        <p>It looks like you haven't placed an order yet.</p>
+        <a href="products.html" class="btn btn-primary mt-md">Browse Shop</a>
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>

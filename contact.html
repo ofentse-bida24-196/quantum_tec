@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>📬 Contact Us</h1>
+      <p>We'd love to hear from you — reach out any time</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Contact</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-layout">
+
+        <!-- ── Left: Info ── -->
+        <div>
+          <h2 style="margin-bottom:8px;">Get in <span class="text-orange">Touch</span></h2>
+          <p class="text-muted" style="margin-bottom:32px; font-size:0.92rem;">
+            Whether you have a question about a laptop, need help with an order, or want to discuss a trade-in — we're here to help.
+          </p>
+
+          <div class="contact-info-item">
+            <div class="contact-icon-box">📍</div>
+            <div>
+              <h4>Our Location</h4>
+              <p>Plot 1234, Broadhurst Industrial<br>Gaborone, Botswana</p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon-box">📞</div>
+            <div>
+              <h4>Phone / WhatsApp</h4>
+              <p>+267 72 000 000</p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon-box">📧</div>
+            <div>
+              <h4>Email</h4>
+              <p>hello@quantumtech.co.bw</p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon-box">🕐</div>
+            <div>
+              <h4>Business Hours</h4>
+              <p>
+                Mon – Fri: 8:00 AM – 6:00 PM<br>
+                Saturday: 9:00 AM – 3:00 PM<br>
+                Sunday: Closed
+              </p>
+            </div>
+          </div>
+
+          <!-- Map placeholder -->
+          <div style="background:var(--gray-bg); border:1.5px solid var(--border); border-radius:var(--radius-lg); height:180px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin-top:8px; color:var(--gray-light);">
+            🗺️ Broadhurst, Gaborone
+          </div>
+        </div>
+
+        <!-- ── Right: Contact form ── -->
+        <div>
+          <div class="checkout-card">
+            <h3>📩 Send a Message</h3>
+
+            <!-- Success state -->
+            <div id="contactSuccess" style="display:none; text-align:center; padding:28px 0;">
+              <div style="font-size:3rem; margin-bottom:12px;">✅</div>
+              <h3 style="margin-bottom:8px;">Message Sent!</h3>
+              <p class="text-muted" style="margin-bottom:20px;">
+                We'll get back to you within 24 hours during business days.
+              </p>
+              <button class="btn btn-outline" onclick="resetContactForm()">Send Another</button>
+            </div>
+
+            <!-- Form -->
+            <div id="contactFormFields">
+
+              <div id="contactAlert"></div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ctName">Your Name</label>
+                  <input type="text" id="ctName" placeholder="Full name" oninput="clearFieldError('ctName')" />
+                  <span class="field-error">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label for="ctEmail">Email Address</label>
+                  <input type="email" id="ctEmail" placeholder="your@email.com" oninput="clearFieldError('ctEmail')" />
+                  <span class="field-error">Valid email required.</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="ctPhone">Phone Number (optional)</label>
+                <input type="tel" id="ctPhone" placeholder="+267 72 123 456" />
+              </div>
+
+              <div class="form-group">
+                <label for="ctSubject">Subject</label>
+                <select id="ctSubject" oninput="clearFieldError('ctSubject')">
+                  <option value="">Select subject</option>
+                  <option value="order">Order Inquiry</option>
+                  <option value="trade">Trade-In Question</option>
+                  <option value="product">Product Question</option>
+                  <option value="warranty">Warranty Claim</option>
+                  <option value="delivery">Delivery Issue</option>
+                  <option value="other">Other</option>
+                </select>
+                <span class="field-error">Please select a subject.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="ctMessage">Message</label>
+                <textarea id="ctMessage" rows="5" placeholder="How can we help you today?" oninput="clearFieldError('ctMessage')"></textarea>
+                <span class="field-error">Please enter your message.</span>
+              </div>
+
+              <button class="btn btn-primary btn-full" onclick="handleContactSubmit()">
+                Send Message →
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ Section ── -->
+  <section class="section section-gray" id="faq">
+    <div class="container" style="max-width:740px;">
+      <div class="section-heading">
+        <h2>Frequently Asked <span class="text-orange">Questions</span></h2>
+        <div class="heading-line"></div>
+      </div>
+      <div id="faqList"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("contact");
+  buildFooter();
+
+  // Pre-fill if logged in
+  const session = getSession();
+  if (session) {
+    document.getElementById("ctName").value  = session.name  || "";
+    document.getElementById("ctEmail").value = session.email || "";
+  }
+
+  // ── Contact form submit ──
+  function handleContactSubmit() {
+    const name    = document.getElementById("ctName").value.trim();
+    const email   = document.getElementById("ctEmail").value.trim();
+    const phone   = document.getElementById("ctPhone").value.trim();
+    const subject = document.getElementById("ctSubject").value;
+    const message = document.getElementById("ctMessage").value.trim();
+
+    let valid = true;
+
+    if (!name)   { showFieldError("ctName",    "Required.");                 valid = false; }
+    if (!email || !email.includes("@")) { showFieldError("ctEmail", "Valid email required."); valid = false; }
+    if (!subject) { showFieldError("ctSubject", "Please select a subject."); valid = false; }
+    if (!message) { showFieldError("ctMessage", "Please enter your message."); valid = false; }
+
+    if (!valid) {
+      showAlert("contactAlert", "⚠️ Please fill in all required fields.", "danger");
+      return;
+    }
+
+    // Save message
+    const messages = lsGet(STORAGE.MESSAGES, []);
+    messages.push({
+      name, email, phone, subject, message,
+      date: new Date().toLocaleDateString("en-BW")
+    });
+    lsSet(STORAGE.MESSAGES, messages);
+
+    // Show success
+    document.getElementById("contactFormFields").style.display = "none";
+    document.getElementById("contactSuccess").style.display    = "block";
+    clearAlert("contactAlert");
+
+    showToast("Message sent! We'll reply soon. 📧", "success");
+  }
+
+  function resetContactForm() {
+    document.getElementById("contactFormFields").style.display = "block";
+    document.getElementById("contactSuccess").style.display    = "none";
+    document.getElementById("ctSubject").value = "";
+    document.getElementById("ctMessage").value = "";
+    document.getElementById("ctPhone").value   = "";
+  }
+
+  // ── FAQ Accordion ──
+  const FAQS = [
+    {
+      q: "Do your laptops come with a warranty?",
+      a: "Yes! Every laptop we sell comes with a 90-day hardware warranty. If anything fails within 90 days of purchase due to a hardware defect, bring it back and we'll repair or replace it for free."
+    },
+    {
+      q: "How do I know the laptop is actually in good condition?",
+      a: "Every device goes through a full diagnostic test by our certified technicians before being listed. We assign a condition grade — Excellent, Good, or Fair — based on a strict checklist, so you always know what you're buying."
+    },
+    {
+      q: "Can I negotiate the trade-in price?",
+      a: "We base our offer on market value, brand, model, age, and actual condition. You're welcome to discuss the price with our team once you're in store. We aim to be fair and transparent."
+    },
+    {
+      q: "What payment methods do you accept?",
+      a: "We accept Orange Money, MyZaka (Mascom), Bank Transfer / EFT, and Cash on Delivery for deliveries in Gaborone."
+    },
+    {
+      q: "How long does delivery take?",
+      a: "Gaborone deliveries typically take 1 business day. Other cities in Botswana take 2–3 business days. We work with reliable couriers to make sure your laptop arrives safely."
+    },
+    {
+      q: "Do you buy completely broken or dead laptops?",
+      a: "Yes! Even completely non-functional laptops may have value for parts or be repairable. Submit a trade-in form or bring it in for a free assessment — no obligation."
+    },
+    {
+      q: "Can I pick up my order from your store?",
+      a: "Absolutely. You can choose to pick up your laptop in store instead of getting it delivered. Just select that option in the order notes or call us."
+    }
+  ];
+
+  // Build FAQ accordion
+  document.getElementById("faqList").innerHTML = FAQS.map((faq, i) => `
+    <div class="faq-item">
+      <button class="faq-q" id="faqQ${i}" onclick="toggleFaq(${i})">
+        <span>${faq.q}</span>
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-a" id="faqA${i}">
+        ${faq.a}
+      </div>
+    </div>
+  `).join("");
+
+  function toggleFaq(i) {
+    const qEl = document.getElementById("faqQ" + i);
+    const aEl = document.getElementById("faqA" + i);
+    const isOpen = aEl.classList.toggle("open");
+    qEl.classList.toggle("open", isOpen);
+  }
+</script>
+
+</body>
+</html>

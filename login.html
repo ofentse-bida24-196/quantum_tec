@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+  <div class="auth-page">
+    <div class="auth-card">
+
+      <!-- Header -->
+      <div class="auth-card-header">
+        <div class="auth-icon">⚡</div>
+        <h2>Welcome Back</h2>
+        <p>Log in to your QuantumTech account</p>
+      </div>
+
+      <!-- Alert area -->
+      <div id="loginAlert"></div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="loginEmail">Email Address</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="you@example.com"
+          oninput="clearFieldError('loginEmail'); clearAlert('loginAlert');"
+        />
+        <span class="field-error">Please enter a valid email address.</span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Your password"
+          oninput="clearFieldError('loginPassword'); clearAlert('loginAlert');"
+        />
+        <span class="field-error">Please enter your password.</span>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn btn-primary btn-full mt-md" onclick="handleLogin()">
+        Login →
+      </button>
+
+      <!-- Footer links -->
+      <div class="auth-footer">
+        Don't have an account? <a href="signup.html">Sign Up</a>
+      </div>
+      <div class="auth-footer" style="margin-top:8px;">
+        <a href="index.html">← Back to Home</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("");
+
+  // Redirect if already logged in
+  if (getSession()) {
+    window.location.href = "index.html";
+  }
+
+  function handleLogin() {
+    const emailEl    = document.getElementById("loginEmail");
+    const passwordEl = document.getElementById("loginPassword");
+    const email      = emailEl.value.trim();
+    const password   = passwordEl.value;
+
+    let valid = true;
+
+    // Basic validation
+    if (!email || !email.includes("@")) {
+      showFieldError("loginEmail", "Please enter a valid email address.");
+      valid = false;
+    }
+    if (!password) {
+      showFieldError("loginPassword", "Please enter your password.");
+      valid = false;
+    }
+    if (!valid) return;
+
+    // Attempt login
+    const result = loginUser(email, password);
+
+    if (result.ok) {
+      showToast("Welcome back, " + result.user.name + "! 👋", "success");
+
+      // Redirect to the page they came from, or home
+      const params   = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect") || "index.html";
+
+      setTimeout(() => { window.location.href = redirect; }, 900);
+    } else {
+      showAlert("loginAlert", "⚠️ " + result.message, "danger");
+    }
+  }
+
+  // Allow pressing Enter to submit
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") handleLogin();
+  });
+</script>
+
+</body>
+</html>

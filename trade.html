@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade-In — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="container">
+      <div class="hero-badge" style="justify-content:center;">♻️ Trade-In Program</div>
+      <h1>Sell Your <span class="text-orange">Damaged Laptop</span></h1>
+      <p>Get cash for your old or broken device — it's quick, fair, and hassle-free.</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Trade-In</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="trade-layout">
+
+        <!-- ── Left: Info ── -->
+        <div class="trade-info-block">
+          <h2>How Our <span class="text-orange">Trade-In</span> Works</h2>
+          <p>It's simple. Fill in the form, we'll contact you, you drop off your laptop, and we pay you on the spot.</p>
+
+          <div class="trade-step-list">
+            <div class="trade-step-item">
+              <div class="trade-step-icon-box">📝</div>
+              <div>
+                <h4>1. Submit the Form</h4>
+                <p>Fill in details about your laptop so we can prepare an estimate.</p>
+              </div>
+            </div>
+            <div class="trade-step-item">
+              <div class="trade-step-icon-box">📞</div>
+              <div>
+                <h4>2. We Contact You</h4>
+                <p>Our team calls or WhatsApps you within 24 hours to confirm the deal.</p>
+              </div>
+            </div>
+            <div class="trade-step-item">
+              <div class="trade-step-icon-box">🏪</div>
+              <div>
+                <h4>3. Drop Off the Laptop</h4>
+                <p>Bring your device to our store. Our technicians do a full assessment.</p>
+              </div>
+            </div>
+            <div class="trade-step-item">
+              <div class="trade-step-icon-box">💸</div>
+              <div>
+                <h4>4. Get Paid</h4>
+                <p>Once the price is agreed, we pay you immediately — cash or mobile money.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price guide -->
+          <div class="price-guide-box">
+            <h4>💰 Approximate Price Guide</h4>
+            <div class="price-row">
+              <span>Minor issues (battery, keyboard, trackpad)</span>
+              <span class="pr-amount">BWP 500 – 1,200</span>
+            </div>
+            <div class="price-row">
+              <span>Screen damage</span>
+              <span class="pr-amount">BWP 300 – 800</span>
+            </div>
+            <div class="price-row">
+              <span>Water / liquid damage</span>
+              <span class="pr-amount">BWP 150 – 600</span>
+            </div>
+            <div class="price-row">
+              <span>Multiple / severe issues</span>
+              <span class="pr-amount">BWP 100 – 400</span>
+            </div>
+            <p style="font-size:0.78rem; color:var(--gray-mid); margin-top:12px;">
+              * Final offer depends on brand, model, age, and actual condition after inspection.
+            </p>
+          </div>
+        </div>
+
+        <!-- ── Right: Form ── -->
+        <div>
+          <div class="checkout-card">
+            <h3>📋 Submit Your Laptop</h3>
+
+            <div id="tradeAlert"></div>
+
+            <!-- Success message (hidden by default) -->
+            <div id="tradeSuccess" style="display:none; text-align:center; padding:32px 10px;">
+              <div style="font-size:3.5rem; margin-bottom:16px;">🎉</div>
+              <h3 style="margin-bottom:10px;">Request Submitted!</h3>
+              <p class="text-muted" style="margin-bottom:6px;">
+                Your trade-in request has been received.
+              </p>
+              <div id="tradeRefId" style="font-family:var(--font-heading); font-weight:700; color:var(--orange); font-size:1.05rem; margin:14px 0;"></div>
+              <p class="text-muted" style="margin-bottom:24px;">
+                We'll contact you at your phone number within 24 hours.
+              </p>
+              <a href="index.html" class="btn btn-primary">Back to Home</a>
+            </div>
+
+            <!-- Form (hidden after submission) -->
+            <div id="tradeFormFields">
+              <!-- Contact info -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tradeName">Your Name</label>
+                  <input type="text" id="tradeName" placeholder="Full name" oninput="clearFieldError('tradeName')" />
+                  <span class="field-error">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label for="tradePhone">Phone Number</label>
+                  <input type="tel" id="tradePhone" placeholder="+267 72 123 456" oninput="clearFieldError('tradePhone')" />
+                  <span class="field-error">Required.</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="tradeEmail">Email Address</label>
+                <input type="email" id="tradeEmail" placeholder="your@email.com" oninput="clearFieldError('tradeEmail')" />
+                <span class="field-error">Enter a valid email.</span>
+              </div>
+
+              <!-- Laptop details -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tradeBrand">Laptop Brand</label>
+                  <select id="tradeBrand" oninput="clearFieldError('tradeBrand')">
+                    <option value="">Select brand</option>
+                    <option>Dell</option>
+                    <option>HP</option>
+                    <option>Lenovo</option>
+                    <option>Acer</option>
+                    <option>Asus</option>
+                    <option>Toshiba</option>
+                    <option>Apple (MacBook)</option>
+                    <option>Samsung</option>
+                    <option>Other</option>
+                  </select>
+                  <span class="field-error">Please select a brand.</span>
+                </div>
+                <div class="form-group">
+                  <label for="tradeModel">Model (if known)</label>
+                  <input type="text" id="tradeModel" placeholder="e.g. Latitude 5480" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tradeRam">RAM</label>
+                  <select id="tradeRam">
+                    <option value="">Select RAM</option>
+                    <option>2GB</option>
+                    <option>4GB</option>
+                    <option>8GB</option>
+                    <option>16GB</option>
+                    <option>32GB</option>
+                    <option>Don't know</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="tradeStorage">Storage</label>
+                  <select id="tradeStorage">
+                    <option value="">Select storage</option>
+                    <option>128GB SSD</option>
+                    <option>256GB SSD</option>
+                    <option>512GB SSD</option>
+                    <option>500GB HDD</option>
+                    <option>1TB HDD</option>
+                    <option>Don't know</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="tradeDamage">Type of Damage</label>
+                <select id="tradeDamage" oninput="clearFieldError('tradeDamage')">
+                  <option value="">Select damage type</option>
+                  <option value="screen">Cracked / broken screen</option>
+                  <option value="battery">Battery not charging or dead</option>
+                  <option value="keyboard">Keyboard or trackpad damage</option>
+                  <option value="water">Water / liquid damage</option>
+                  <option value="power">Won't power on</option>
+                  <option value="slow">Very slow / software issues</option>
+                  <option value="multiple">Multiple issues</option>
+                  <option value="other">Other</option>
+                </select>
+                <span class="field-error">Please describe the damage type.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="tradeDesc">Describe the Damage (optional)</label>
+                <textarea id="tradeDesc" placeholder="Tell us more about what's wrong with your laptop..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="tradePayout">Preferred Payout Method</label>
+                <select id="tradePayout" oninput="clearFieldError('tradePayout')">
+                  <option value="">Select payout method</option>
+                  <option value="orange">Orange Money</option>
+                  <option value="myzaka">MyZaka (Mascom)</option>
+                  <option value="bank">Bank Transfer</option>
+                  <option value="cash">Cash in Store</option>
+                </select>
+                <span class="field-error">Please select a payout method.</span>
+              </div>
+
+              <button class="btn btn-primary btn-full" onclick="handleTradeSubmit()">
+                Submit Trade-In Request →
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("trade");
+  buildFooter();
+
+  // Pre-fill if logged in
+  const session = getSession();
+  if (session) {
+    document.getElementById("tradeName").value  = session.name  || "";
+    document.getElementById("tradeEmail").value = session.email || "";
+  }
+
+  function handleTradeSubmit() {
+    const name    = document.getElementById("tradeName").value.trim();
+    const phone   = document.getElementById("tradePhone").value.trim();
+    const email   = document.getElementById("tradeEmail").value.trim();
+    const brand   = document.getElementById("tradeBrand").value;
+    const model   = document.getElementById("tradeModel").value.trim();
+    const ram     = document.getElementById("tradeRam").value;
+    const storage = document.getElementById("tradeStorage").value;
+    const damage  = document.getElementById("tradeDamage").value;
+    const desc    = document.getElementById("tradeDesc").value.trim();
+    const payout  = document.getElementById("tradePayout").value;
+
+    let valid = true;
+
+    if (!name)   { showFieldError("tradeName",   "Required.");              valid = false; }
+    if (!phone)  { showFieldError("tradePhone",  "Required.");              valid = false; }
+    if (!email || !email.includes("@")) { showFieldError("tradeEmail", "Valid email required."); valid = false; }
+    if (!brand)  { showFieldError("tradeBrand",  "Please select a brand."); valid = false; }
+    if (!damage) { showFieldError("tradeDamage", "Please describe the damage."); valid = false; }
+    if (!payout) { showFieldError("tradePayout", "Please select a payout method."); valid = false; }
+
+    if (!valid) {
+      showAlert("tradeAlert", "⚠️ Please fill in all required fields.", "danger");
+      return;
+    }
+
+    // Save trade request to localStorage
+    const tradeId  = generateId("TR");
+    const requests = lsGet(STORAGE.TRADE, []);
+
+    requests.push({
+      id:      tradeId,
+      date:    new Date().toLocaleDateString("en-BW"),
+      name, phone, email, brand, model, ram, storage, damage, desc, payout
+    });
+
+    lsSet(STORAGE.TRADE, requests);
+
+    // Show success state
+    document.getElementById("tradeFormFields").style.display = "none";
+    document.getElementById("tradeSuccess").style.display    = "block";
+    document.getElementById("tradeAlert").innerHTML          = "";
+    document.getElementById("tradeRefId").textContent        = "Reference: " + tradeId;
+
+    showToast("Trade-in request submitted! We'll be in touch. 📞", "success");
+  }
+</script>
+
+</body>
+</html>

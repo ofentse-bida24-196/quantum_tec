@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>🛒 Your Cart</h1>
+      <p>Review your items before placing an order</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Cart</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section-gray" style="padding-top:44px;">
+    <div class="container">
+      <div id="cartContent"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("");
+  buildFooter();
+
+  // This function re-draws the entire cart.
+  // We call it whenever the cart changes (add, remove, qty change).
+  function renderCart() {
+    const cart      = getCart();
+    const container = document.getElementById("cartContent");
+
+    // Empty cart state
+    if (cart.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">🛒</span>
+          <h3>Your cart is empty</h3>
+          <p>You haven't added any laptops yet. Browse the shop to get started!</p>
+          <a href="products.html" class="btn btn-primary">Browse Laptops</a>
+        </div>
+      `;
+      return;
+    }
+
+    // Build table rows
+    const rows = cart.map(item => {
+      const p = PRODUCTS.find(pr => pr.id === item.id);
+      if (!p) return "";
+
+      const lineTotal = p.price * item.qty;
+
+      return `
+        <tr>
+          <!-- Product info -->
+          <td>
+            <div class="cart-item-info">
+              <span class="cart-item-emoji">${p.emoji}</span>
+              <div>
+                <div class="cart-item-name">${p.name}</div>
+                <div class="cart-item-spec">${p.specs[0]} · ${p.specs[1]}</div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Unit price -->
+          <td><strong>${formatBWP(p.price)}</strong></td>
+
+          <!-- Quantity control -->
+          <td>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(${p.id}, -1); renderCart();">−</button>
+              <span class="qty-val">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${p.id}, +1); renderCart();">+</button>
+            </div>
+          </td>
+
+          <!-- Line total -->
+          <td><strong>${formatBWP(lineTotal)}</strong></td>
+
+          <!-- Remove button -->
+          <td>
+            <button class="remove-btn" onclick="removeFromCart(${p.id}); renderCart();" title="Remove item">
+              🗑
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const subtotal = getCartTotal();
+    const itemCount = cart.reduce((n, i) => n + i.qty, 0);
+
+    container.innerHTML = `
+      <div class="cart-layout">
+
+        <!-- Left: Cart table -->
+        <div>
+          <div class="cart-table-wrap">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+
+          <!-- Actions below table -->
+          <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+            <a href="products.html" class="btn btn-outline btn-sm">← Continue Shopping</a>
+            <button class="btn btn-sm" style="background:var(--gray-bg); color:var(--gray-mid);"
+              onclick="if(confirm('Remove all items from your cart?')) { clearCart(); renderCart(); }">
+              Clear Cart
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Summary box -->
+        <div>
+          <div class="cart-summary-box">
+            <h3>Order Summary</h3>
+
+            <div class="summary-line">
+              <span>Subtotal (${itemCount} item${itemCount !== 1 ? "s" : ""})</span>
+              <span>${formatBWP(subtotal)}</span>
+            </div>
+            <div class="summary-line">
+              <span>Delivery</span>
+              <span style="color:var(--success);">FREE</span>
+            </div>
+            <div class="summary-line total">
+              <span>Total</span>
+              <span>${formatBWP(subtotal)}</span>
+            </div>
+
+            <a href="order.html" class="btn btn-primary btn-full mt-md">
+              Proceed to Order →
+            </a>
+
+            <p style="text-align:center; font-size:0.78rem; color:var(--gray-light); margin-top:12px;">
+              🔒 Secure checkout &nbsp;·&nbsp; 90-day warranty on all items
+            </p>
+          </div>
+        </div>
+
+      </div>
+    `;
+  }
+
+  // Make renderCart global so onclick attributes can call it
+  window.renderCart = renderCart;
+
+  // Initial render
+  renderCart();
+</script>
+
+</body>
+</html>

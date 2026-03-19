@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>⭐ Feedback & Reviews</h1>
+      <p>Share your experience and help us improve</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Feedback</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section-gray">
+    <div class="container" style="max-width:740px;">
+
+      <!-- Feedback form card -->
+      <div class="checkout-card" style="margin-bottom:40px;">
+        <h3>✏️ Leave Your Review</h3>
+
+        <!-- Success state (hidden by default) -->
+        <div id="feedbackSuccess" style="display:none; text-align:center; padding:28px 0;">
+          <div style="font-size:3rem; margin-bottom:14px;">🙏</div>
+          <h3 style="margin-bottom:8px;">Thank You!</h3>
+          <p class="text-muted" style="margin-bottom:20px;">
+            Your feedback means a lot. We use it to keep improving.
+          </p>
+          <button class="btn btn-outline" onclick="resetFeedbackForm()">Submit Another Review</button>
+        </div>
+
+        <!-- Form fields -->
+        <div id="feedbackFormFields">
+
+          <div id="feedbackAlert"></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fbName">Your Name</label>
+              <input type="text" id="fbName" placeholder="Full name" oninput="clearFieldError('fbName')" />
+              <span class="field-error">Required.</span>
+            </div>
+            <div class="form-group">
+              <label for="fbEmail">Email Address</label>
+              <input type="email" id="fbEmail" placeholder="your@email.com" oninput="clearFieldError('fbEmail')" />
+              <span class="field-error">Valid email required.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="fbCategory">What are you reviewing?</label>
+            <select id="fbCategory" oninput="clearFieldError('fbCategory')">
+              <option value="">Select a category</option>
+              <option value="purchase">Laptop Purchase</option>
+              <option value="trade">Trade-In Experience</option>
+              <option value="delivery">Delivery</option>
+              <option value="support">Customer Support</option>
+              <option value="website">Website</option>
+              <option value="general">General</option>
+            </select>
+            <span class="field-error">Please select a category.</span>
+          </div>
+
+          <!-- Star rating -->
+          <div class="form-group">
+            <label>Overall Rating</label>
+            <div class="star-rating" id="starRating">
+              <button type="button" class="star-btn" data-val="1">⭐</button>
+              <button type="button" class="star-btn" data-val="2">⭐</button>
+              <button type="button" class="star-btn" data-val="3">⭐</button>
+              <button type="button" class="star-btn" data-val="4">⭐</button>
+              <button type="button" class="star-btn" data-val="5">⭐</button>
+            </div>
+            <div id="ratingText" class="text-muted text-small" style="margin-top:4px;">Click a star to rate</div>
+            <input type="hidden" id="fbRating" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="fbMessage">Your Review</label>
+            <textarea id="fbMessage" rows="5" placeholder="Tell us about your experience with QuantumTech..." oninput="clearFieldError('fbMessage')"></textarea>
+            <span class="field-error">Please write your review.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Would you recommend us to a friend?</label>
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:4px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
+                <input type="radio" name="recommend" value="yes" checked style="accent-color:var(--orange);" />
+                👍 Yes, definitely!
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
+                <input type="radio" name="recommend" value="maybe" style="accent-color:var(--orange);" />
+                🤔 Maybe
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
+                <input type="radio" name="recommend" value="no" style="accent-color:var(--orange);" />
+                👎 Not right now
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full" onclick="handleFeedbackSubmit()">
+            Submit Review →
+          </button>
+
+        </div>
+      </div>
+
+      <!-- ── Review list ── -->
+      <h3 style="font-family:var(--font-heading); margin-bottom:22px; font-size:1.2rem; text-align:center;">
+        What Students Are Saying
+      </h3>
+      <div id="reviewsGrid" style="display:flex; flex-direction:column; gap:16px;"></div>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("feedback");
+  buildFooter();
+
+  // Pre-fill if logged in
+  const session = getSession();
+  if (session) {
+    document.getElementById("fbName").value  = session.name  || "";
+    document.getElementById("fbEmail").value = session.email || "";
+  }
+
+  // ── Star rating logic ──
+  let currentRating = 0;
+  const ratingDescriptions = ["", "Poor", "Below average", "Good", "Very good", "Excellent!"];
+
+  document.getElementById("starRating").addEventListener("click", function(e) {
+    const btn = e.target.closest(".star-btn");
+    if (!btn) return;
+
+    currentRating = parseInt(btn.dataset.val);
+    document.getElementById("fbRating").value = currentRating;
+    document.getElementById("ratingText").textContent =
+      ratingDescriptions[currentRating] + " (" + currentRating + "/5)";
+
+    // Light up the stars
+    document.querySelectorAll(".star-btn").forEach((s, i) => {
+      s.classList.toggle("lit", i < currentRating);
+    });
+  });
+
+  // ── Submit feedback ──
+  function handleFeedbackSubmit() {
+    const name      = document.getElementById("fbName").value.trim();
+    const email     = document.getElementById("fbEmail").value.trim();
+    const category  = document.getElementById("fbCategory").value;
+    const rating    = parseInt(document.getElementById("fbRating").value);
+    const message   = document.getElementById("fbMessage").value.trim();
+    const recommend = document.querySelector("input[name='recommend']:checked")?.value || "yes";
+
+    let valid = true;
+
+    if (!name)   { showFieldError("fbName",    "Required.");              valid = false; }
+    if (!email || !email.includes("@")) { showFieldError("fbEmail", "Valid email required."); valid = false; }
+    if (!category) { showFieldError("fbCategory", "Please select a category."); valid = false; }
+    if (rating === 0) {
+      document.getElementById("ratingText").textContent = "⚠️ Please select a star rating.";
+      document.getElementById("ratingText").style.color = "var(--danger)";
+      valid = false;
+    }
+    if (!message) { showFieldError("fbMessage", "Please write your review."); valid = false; }
+
+    if (!valid) {
+      showAlert("feedbackAlert", "⚠️ Please fill in all required fields.", "danger");
+      return;
+    }
+
+    // Save to localStorage
+    const feedbacks = lsGet(STORAGE.FEEDBACK, []);
+    feedbacks.push({
+      name, email, category, rating, message, recommend,
+      date: new Date().toLocaleDateString("en-BW")
+    });
+    lsSet(STORAGE.FEEDBACK, feedbacks);
+
+    // Show success state
+    document.getElementById("feedbackFormFields").style.display = "none";
+    document.getElementById("feedbackSuccess").style.display    = "block";
+    clearAlert("feedbackAlert");
+
+    showToast("Review submitted! Thank you 🙏", "success");
+
+    // Refresh reviews list
+    renderReviews();
+  }
+
+  function resetFeedbackForm() {
+    document.getElementById("feedbackFormFields").style.display = "block";
+    document.getElementById("feedbackSuccess").style.display    = "none";
+    currentRating = 0;
+    document.getElementById("fbRating").value = "0";
+    document.getElementById("ratingText").textContent = "Click a star to rate";
+    document.getElementById("ratingText").style.color = "";
+    document.querySelectorAll(".star-btn").forEach(s => s.classList.remove("lit"));
+    document.getElementById("fbCategory").value = "";
+    document.getElementById("fbMessage").value  = "";
+  }
+
+  // ── Render reviews ──
+  // Some sample reviews so the page isn't empty on first load
+  const SAMPLE_REVIEWS = [
+    {
+      name: "Thabo M.", date: "15 Jan 2025", rating: 5, category: "purchase",
+      message: "Got a Dell laptop for BWP 3,500 that works perfectly! Much cheaper than any shop in town. QuantumTech is a lifesaver for students."
+    },
+    {
+      name: "Kefilwe S.", date: "22 Jan 2025", rating: 5, category: "trade",
+      message: "Sold my broken HP laptop here. The team was honest, the process was fast, and I got BWP 600 cash on the spot. Highly recommended!"
+    },
+    {
+      name: "Goabaone P.", date: "3 Feb 2025", rating: 4, category: "purchase",
+      message: "Good quality refurbished laptop. Delivery took 2 days which was reasonable. The 90-day warranty gives peace of mind. Will definitely buy again."
+    }
+  ];
+
+  function renderReviews() {
+    const userReviews = lsGet(STORAGE.FEEDBACK, []);
+    const allReviews  = [...userReviews.slice(-5).reverse(), ...SAMPLE_REVIEWS];
+
+    const html = allReviews.map(r => `
+      <div class="review-card">
+        <div class="review-header">
+          <div>
+            <div class="reviewer-name">${r.name}</div>
+            <div class="review-date">${r.date} · ${r.category}</div>
+          </div>
+          <div class="review-stars">
+            ${"⭐".repeat(r.rating)}${"☆".repeat(5 - r.rating)}
+          </div>
+        </div>
+        <div class="review-body">"${r.message}"</div>
+      </div>
+    `).join("");
+
+    document.getElementById("reviewsGrid").innerHTML = html;
+  }
+
+  renderReviews();
+</script>
+
+</body>
+</html>

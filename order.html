@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Place Order — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>📋 Place Your Order</h1>
+      <p>Fill in your delivery details to complete your purchase</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <a href="cart.html">Cart</a>
+        <span class="sep">/</span>
+        <span>Order</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section-gray" style="padding-top:44px;">
+    <div class="container">
+
+      <!-- Empty cart message -->
+      <div id="emptyMsg" style="display:none;">
+        <div class="empty-state">
+          <span class="empty-icon">🛒</span>
+          <h3>Your cart is empty</h3>
+          <p>Add some laptops to your cart before placing an order.</p>
+          <a href="products.html" class="btn btn-primary">Browse Shop</a>
+        </div>
+      </div>
+
+      <!-- Checkout form (shown when cart has items) -->
+      <div id="checkoutWrap" class="checkout-layout">
+
+        <!-- ── Left column: forms ── -->
+        <div>
+
+          <!-- Delivery details -->
+          <div class="checkout-card">
+            <h3>📍 Delivery Details</h3>
+
+            <div id="orderAlert"></div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="orderFirstName">First Name</label>
+                <input type="text" id="orderFirstName" placeholder="Thabo" oninput="clearFieldError('orderFirstName')" />
+                <span class="field-error">Required.</span>
+              </div>
+              <div class="form-group">
+                <label for="orderLastName">Last Name</label>
+                <input type="text" id="orderLastName" placeholder="Molefe" oninput="clearFieldError('orderLastName')" />
+                <span class="field-error">Required.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="orderPhone">Phone Number</label>
+              <input type="tel" id="orderPhone" placeholder="+267 72 123 456" oninput="clearFieldError('orderPhone')" />
+              <span class="field-error">Required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="orderEmail">Email Address</label>
+              <input type="email" id="orderEmail" placeholder="For order confirmation" oninput="clearFieldError('orderEmail')" />
+              <span class="field-error">Please enter a valid email.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="orderAddress">Street Address</label>
+              <input type="text" id="orderAddress" placeholder="Plot 123, Main Mall Road" oninput="clearFieldError('orderAddress')" />
+              <span class="field-error">Required.</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="orderCity">City / Town</label>
+                <select id="orderCity" oninput="clearFieldError('orderCity')">
+                  <option value="">Select city</option>
+                  <option>Gaborone</option>
+                  <option>Francistown</option>
+                  <option>Maun</option>
+                  <option>Serowe</option>
+                  <option>Kanye</option>
+                  <option>Molepolole</option>
+                  <option>Lobatse</option>
+                  <option>Palapye</option>
+                  <option>Other</option>
+                </select>
+                <span class="field-error">Please select a city.</span>
+              </div>
+              <div class="form-group">
+                <label for="orderNotes">Order Notes (optional)</label>
+                <input type="text" id="orderNotes" placeholder="e.g. Call before delivery" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment method -->
+          <div class="checkout-card">
+            <h3>💳 Payment Method</h3>
+            <div class="payment-options">
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="orange_money" checked />
+                <div>
+                  <div class="pm-label">🟠 Orange Money</div>
+                  <div style="font-size:0.8rem;color:var(--gray-mid);">Pay via Orange Money mobile wallet</div>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="myzaka" />
+                <div>
+                  <div class="pm-label">📱 MyZaka (Mascom)</div>
+                  <div style="font-size:0.8rem;color:var(--gray-mid);">Pay via MyZaka mobile wallet</div>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="bank_transfer" />
+                <div>
+                  <div class="pm-label">🏦 Bank Transfer / EFT</div>
+                  <div style="font-size:0.8rem;color:var(--gray-mid);">Transfer directly to our bank account</div>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="cash_on_delivery" />
+                <div>
+                  <div class="pm-label">💵 Cash on Delivery</div>
+                  <div style="font-size:0.8rem;color:var(--gray-mid);">Pay with cash when your order arrives</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Right column: order summary ── -->
+        <div>
+          <div class="cart-summary-box" style="position:sticky; top:calc(68px + 16px);">
+            <h3>🧾 Order Summary</h3>
+            <div id="orderItemsList"></div>
+            <hr class="divider-line" />
+            <div class="summary-line">
+              <span>Subtotal</span>
+              <span id="orderSubtotal"></span>
+            </div>
+            <div class="summary-line">
+              <span>Delivery</span>
+              <span style="color:var(--success);">FREE</span>
+            </div>
+            <div class="summary-line total">
+              <span>Total</span>
+              <span id="orderTotal"></span>
+            </div>
+
+            <button class="btn btn-primary btn-full mt-md" onclick="handlePlaceOrder()">
+              ✅ Place Order
+            </button>
+            <p style="text-align:center; font-size:0.78rem; color:var(--gray-light); margin-top:10px;">
+              🔒 Your order is safe and protected
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("");
+  buildFooter();
+
+  const cart = getCart();
+
+  // Show empty state if cart is empty
+  if (cart.length === 0) {
+    document.getElementById("emptyMsg").style.display = "block";
+    document.getElementById("checkoutWrap").style.display = "none";
+  } else {
+    // Pre-fill name and email if user is logged in
+    const session = getSession();
+    if (session) {
+      const nameParts = session.name.split(" ");
+      document.getElementById("orderFirstName").value = nameParts[0] || "";
+      document.getElementById("orderLastName").value  = nameParts.slice(1).join(" ") || "";
+      document.getElementById("orderEmail").value     = session.email || "";
+    }
+
+    // Populate order items
+    const itemsHTML = cart.map(item => {
+      const p = PRODUCTS.find(pr => pr.id === item.id);
+      if (!p) return "";
+      return `
+        <div class="summary-line">
+          <span>${p.emoji} ${p.name} ×${item.qty}</span>
+          <span>${formatBWP(p.price * item.qty)}</span>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("orderItemsList").innerHTML = itemsHTML;
+    document.getElementById("orderSubtotal").textContent = formatBWP(getCartTotal());
+    document.getElementById("orderTotal").textContent    = formatBWP(getCartTotal());
+  }
+
+  // Handle placing the order
+  function handlePlaceOrder() {
+    const firstName = document.getElementById("orderFirstName").value.trim();
+    const lastName  = document.getElementById("orderLastName").value.trim();
+    const phone     = document.getElementById("orderPhone").value.trim();
+    const email     = document.getElementById("orderEmail").value.trim();
+    const address   = document.getElementById("orderAddress").value.trim();
+    const city      = document.getElementById("orderCity").value;
+    const notes     = document.getElementById("orderNotes").value.trim();
+    const payment   = document.querySelector("input[name='payMethod']:checked")?.value || "";
+
+    let valid = true;
+
+    if (!firstName) { showFieldError("orderFirstName", "Required."); valid = false; }
+    if (!lastName)  { showFieldError("orderLastName",  "Required."); valid = false; }
+    if (!phone)     { showFieldError("orderPhone",     "Required."); valid = false; }
+    if (!email || !email.includes("@")) { showFieldError("orderEmail", "Valid email required."); valid = false; }
+    if (!address)   { showFieldError("orderAddress",   "Required."); valid = false; }
+    if (!city)      { showFieldError("orderCity",      "Please select a city."); valid = false; }
+
+    if (!valid) {
+      showAlert("orderAlert", "⚠️ Please fill in all required fields.", "danger");
+      return;
+    }
+
+    // Place the order
+    const order = placeOrder({
+      name:    firstName + " " + lastName,
+      phone,
+      email,
+      address,
+      city,
+      notes,
+      payment
+    });
+
+    // Notify user
+    showToast("🎉 Order placed successfully!", "success");
+
+    // Go to confirmation page
+    setTimeout(() => {
+      window.location.href = "order_confirmation.html";
+    }, 900);
+  }
+</script>
+
+</body>
+</html>

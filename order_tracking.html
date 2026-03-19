@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Order — Quantum Tech</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>📍 Track Your Order</h1>
+      <p>Enter your Order ID to see the latest status</p>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span>Order Tracking</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section-gray" style="padding-top:44px;">
+    <div class="container" style="max-width:720px;">
+
+      <!-- Search bar -->
+      <div class="tracking-search-bar">
+        <h3 style="margin-bottom:14px; font-size:1rem;">🔍 Look Up Your Order</h3>
+        <div class="tracking-search-row">
+          <input
+            type="text"
+            id="trackInput"
+            placeholder="Enter your Order ID  e.g. QT-AB12CD34"
+            autocomplete="off"
+          />
+          <button class="btn btn-primary" onclick="trackOrder()">Track</button>
+        </div>
+        <p class="text-muted text-small" style="margin-top:10px;">
+          💡 Your Order ID starts with "QT-" and was shown on the confirmation page.
+        </p>
+      </div>
+
+      <!-- Track result area -->
+      <div id="trackResult"></div>
+
+      <!-- My orders list -->
+      <div class="checkout-card">
+        <h3>📦 My Orders</h3>
+        <div id="myOrdersList"></div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+  buildNav("");
+  buildFooter();
+
+  // The 4 stages of delivery and what step number each means
+  const TRACKING_STAGES = [
+    {
+      label:  "Order Confirmed",
+      desc:   "Your order has been received and confirmed by our team.",
+      icon:   "✅"
+    },
+    {
+      label:  "Preparing",
+      desc:   "Our technicians are doing a final check on your laptop.",
+      icon:   "🔧"
+    },
+    {
+      label:  "Out for Delivery",
+      desc:   "Your laptop is on its way to your delivery address.",
+      icon:   "🚚"
+    },
+    {
+      label:  "Delivered",
+      desc:   "Your laptop has been delivered. Enjoy!",
+      icon:   "🎉"
+    }
+  ];
+
+  // Map order status string to stage index (0-based)
+  const STATUS_INDEX = {
+    "Confirmed":  0,
+    "Preparing":  1,
+    "Dispatched": 2,
+    "Delivered":  3
+  };
+
+  function trackOrder() {
+    const input     = document.getElementById("trackInput").value.trim().toUpperCase();
+    const resultDiv = document.getElementById("trackResult");
+
+    if (!input) {
+      resultDiv.innerHTML = `<div class="alert alert-danger">⚠️ Please enter an Order ID.</div>`;
+      return;
+    }
+
+    const orders = getOrders();
+    const order  = orders.find(o => o.id === input);
+
+    if (!order) {
+      resultDiv.innerHTML = `
+        <div class="checkout-card" style="text-align:center; padding:36px;">
+          <div style="font-size:2.8rem; margin-bottom:14px;">❌</div>
+          <h3>Order Not Found</h3>
+          <p class="text-muted" style="margin-top:8px;">
+            No order found with ID <strong>${input}</strong>.<br>
+            Please check the ID and try again.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    const currentStageIndex = STATUS_INDEX[order.status] ?? 0;
+
+    // Build tracking step dots
+    const stepsHTML = TRACKING_STAGES.map((stage, i) => {
+      const isDone   = i < currentStageIndex;
+      const isActive = i === currentStageIndex;
+      const isPending = i > currentStageIndex;
+
+      let dotClass   = "";
+      let labelClass = "";
+      if (isDone)   { dotClass = "done";   labelClass = "done-label"; }
+      if (isActive) { dotClass = "active"; labelClass = "active-label"; }
+
+      const isLast = i === TRACKING_STAGES.length - 1;
+      const lineHTML = !isLast
+        ? `<div class="step-line-v" style="
+            position:absolute; left:16px; top:36px;
+            width:2px; height:32px;
+            background:${isDone ? "var(--success)" : "var(--border)"};
+          "></div>`
+        : "";
+
+      return `
+        <div class="tracking-step-item">
+          <div class="tracking-step-dot ${dotClass}">
+            ${isDone ? "✓" : stage.icon}
+          </div>
+          ${lineHTML}
+          <div class="tracking-step-content">
+            <h4 class="${labelClass}">
+              ${stage.label}
+              ${isActive ? '<span class="tag tag-orange" style="margin-left:8px;font-size:0.7rem;">Current</span>' : ""}
+            </h4>
+            <p>${isActive || isDone ? stage.desc : "Pending…"}</p>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    const payLabels = {
+      orange_money:    "Orange Money",
+      myzaka:          "MyZaka",
+      bank_transfer:   "Bank Transfer",
+      cash_on_delivery:"Cash on Delivery"
+    };
+
+    resultDiv.innerHTML = `
+      <div class="checkout-card" style="margin-bottom:20px;">
+        <h3>📋 Order Details</h3>
+        <div class="confirm-order-id" style="margin-bottom:18px;">
+          Order ID: <span>${order.id}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Customer</span>
+          <span class="value">${order.delivery.name}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Address</span>
+          <span class="value">${order.delivery.address}, ${order.delivery.city}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Payment</span>
+          <span class="value">${payLabels[order.delivery.payment] || order.delivery.payment}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Order Date</span>
+          <span class="value">${order.date}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Total</span>
+          <span class="value" style="color:var(--orange);">${formatBWP(order.total)}</span>
+        </div>
+      </div>
+
+      <div class="checkout-card">
+        <h3>🚦 Delivery Status</h3>
+        <div class="tracking-steps-list" style="margin-top:22px;">
+          ${stepsHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  // Render the list of all user's orders
+  function renderMyOrders() {
+    const orders = getOrders();
+    const listEl = document.getElementById("myOrdersList");
+
+    if (orders.length === 0) {
+      listEl.innerHTML = `
+        <p class="text-muted" style="font-size:0.9rem;">
+          You haven't placed any orders yet.
+          <a href="products.html" style="color:var(--orange);">Start shopping!</a>
+        </p>
+      `;
+      return;
+    }
+
+    // Show most recent first
+    listEl.innerHTML = [...orders].reverse().map(o => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); gap:10px; flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--font-heading); font-weight:700; font-size:0.92rem;">${o.id}</div>
+          <div class="text-muted text-small">${o.date} · ${formatBWP(o.total)}</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span class="tag tag-success" style="font-size:0.72rem;">${o.status}</span>
+          <button class="btn btn-outline btn-sm" onclick="loadOrder('${o.id}')">Track</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Pre-fill the input and track when clicking from the list
+  function loadOrder(orderId) {
+    document.getElementById("trackInput").value = orderId;
+    trackOrder();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // If coming from confirmation page, auto-track the last order
+  const lastId = lsGet(STORAGE.LAST_ORDER);
+  if (lastId) {
+    document.getElementById("trackInput").value = lastId;
+    trackOrder();
+  }
+
+  // Allow Enter key in search box
+  document.getElementById("trackInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") trackOrder();
+  });
+
+  renderMyOrders();
+</script>
+
+</body>
+</html>
